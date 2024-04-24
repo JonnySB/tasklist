@@ -62,11 +62,30 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 	w.Write(js)
 }
 
+func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handing get all tasks at %s\n", req.URL.Path)
+
+	allTasks := ts.store.GetAllTasks()
+	js, err := json.Marshal(allTasks)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+// func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
+// 	log.Printf("handling get task as %s\n", req.URL.Path)
+//
+// }
+
 func main() {
 	mux := http.NewServeMux()
 	server := NewTaskServer()
 
 	mux.HandleFunc("POST /task/", server.createTaskHandler)
+	mux.HandleFunc("GET /task/", server.getAllTasksHandler)
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVEPORT"), mux))
 }
