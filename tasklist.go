@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"example.com/tasklist/internal"
+	"tasklist/internal"
 )
 
 type taskServer struct {
