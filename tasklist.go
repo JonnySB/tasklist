@@ -7,16 +7,14 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"tasklist/internal"
 )
 
 type taskServer struct {
-	store *taskstore.TaskStore
+	store *TaskStore
 }
 
 func NewTaskServer() *taskServer {
-	store := taskstore.New()
+	store := New()
 	return &taskServer{store: store}
 }
 

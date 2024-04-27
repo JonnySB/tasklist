@@ -1,4 +1,4 @@
-package taskstore
+package main
 
 import (
 	"fmt"
