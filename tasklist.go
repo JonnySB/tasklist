@@ -6,6 +6,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -73,10 +74,29 @@ func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Reques
 	w.Write(js)
 }
 
-// func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
-// 	log.Printf("handling get task as %s\n", req.URL.Path)
-//
-// }
+func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling get task as %s\n", req.URL.Path)
+
+	id, err := strconv.Atoi(req.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	task, err := ts.store.GetTask(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	js, err := json.Marshal(task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-type", "application/json")
+	w.Write(js)
+}
 
 func main() {
 	mux := http.NewServeMux()
