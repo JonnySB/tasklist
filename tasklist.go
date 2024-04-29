@@ -98,12 +98,35 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 	w.Write(js)
 }
 
+func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling delete task at %s\n", req.URL.Path)
+
+	id, err := strconv.Atoi(req.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	err = ts.store.DeleteTask(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+}
+
+func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling delete all tasks at %s\n", req.URL.Path)
+	ts.store.DeleteAllTasks()
+}
+
 func main() {
 	mux := http.NewServeMux()
 	server := NewTaskServer()
 
 	mux.HandleFunc("POST /task/", server.createTaskHandler)
 	mux.HandleFunc("GET /task/", server.getAllTasksHandler)
+	mux.HandleFunc("DELETE /task/", server.deleteAllTasksHandler)
+	mux.HandleFunc("GET /task/{id}/", server.getTaskHandler)
+	mux.HandleFunc("DELETE /task/{id}/", server.deleteTaskHandler)
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVEPORT"), mux))
 }
